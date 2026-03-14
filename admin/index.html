@@ -142,19 +142,49 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-config.js"></script>
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var user = document.getElementById('user').value;
-      var pass = document.getElementById('pass').value;
+    // SHA-256 hash no navegador
+    async function sha256(message) {
+      var msgBuffer = new TextEncoder().encode(message);
+      var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      var hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
 
-      // Login estático para testes — substituir por autenticação real em produção
-      if (user === 'admin' && pass === 'm7admin') {
-        sessionStorage.setItem('m7_admin_auth', 'true');
-        window.location.href = 'painel.html';
-      } else {
-        document.getElementById('errorMsg').style.display = 'block';
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = this.querySelector('button');
+      var errorMsg = document.getElementById('errorMsg');
+      errorMsg.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Verificando...';
+
+      try {
+        var user = document.getElementById('user').value.trim();
+        var pass = document.getElementById('pass').value;
+        var hash = await sha256(pass);
+
+        var { data, error } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('username', user)
+          .eq('password_hash', hash)
+          .single();
+
+        if (data) {
+          sessionStorage.setItem('m7_admin_auth', 'true');
+          window.location.href = 'painel.html';
+        } else {
+          errorMsg.style.display = 'block';
+        }
+      } catch (err) {
+        errorMsg.style.display = 'block';
       }
+
+      btn.disabled = false;
+      btn.textContent = 'Acessar';
     });
   </script>
 </body>
