@@ -143,6 +143,31 @@
   setupUploadPreview('uploadAbout', 'previewAbout');
   setupUploadPreview('uploadEnvCover', 'previewEnvCover');
 
+  // Preview para upload múltiplo de imagens do projeto
+  (function () {
+    var input = document.querySelector('#uploadProjImages input[type="file"]');
+    if (input) {
+      input.addEventListener('change', function () {
+        var gallery = document.getElementById('projImageGallery');
+        // Remove previews anteriores (não salvos)
+        gallery.querySelectorAll('.preview-new').forEach(function (el) { el.remove(); });
+
+        for (var i = 0; i < this.files.length; i++) {
+          (function (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+              var item = document.createElement('div');
+              item.className = 'image-gallery-item preview-new';
+              item.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+              gallery.appendChild(item);
+            };
+            reader.readAsDataURL(file);
+          })(this.files[i]);
+        }
+      });
+    }
+  })();
+
   // ========================================
   // DASHBOARD
   // ========================================
