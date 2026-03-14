@@ -79,29 +79,33 @@
   // ========================================
   // SCROLL ANIMATIONS (Intersection Observer)
   // ========================================
-  var animElements = document.querySelectorAll('[data-anim]');
+  function initAnimations() {
+    var animElements = document.querySelectorAll('[data-anim]');
 
-  if ('IntersectionObserver' in window) {
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-    );
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+      );
 
-    animElements.forEach(function (el) {
-      observer.observe(el);
-    });
-  } else {
-    animElements.forEach(function (el) {
-      el.classList.add('visible');
-    });
+      animElements.forEach(function (el) {
+        observer.observe(el);
+      });
+    } else {
+      animElements.forEach(function (el) {
+        el.classList.add('visible');
+      });
+    }
   }
+
+  initAnimations();
 
   // ========================================
   // COUNTER ANIMATION for stats
@@ -112,7 +116,6 @@
   function animateCounter(el) {
     var target = parseInt(el.getAttribute('data-count'), 10);
     var duration = 2000;
-    var start = 0;
     var startTime = null;
 
     function step(timestamp) {
@@ -159,5 +162,185 @@
         heroBg.style.transform = 'scale(1.05) translateY(' + scrollY * 0.15 + 'px)';
       }
     }, { passive: true });
+  }
+
+  // ========================================
+  // SUPABASE - Load dynamic data
+  // ========================================
+  if (typeof supabase !== 'undefined') {
+    loadSiteData();
+  }
+
+  async function loadSiteData() {
+    try {
+      await Promise.all([loadSiteSettings(), loadAmbientes()]);
+    } catch (err) {
+      console.error('Error loading site data:', err);
+    }
+  }
+
+  // Load site settings
+  async function loadSiteSettings() {
+    try {
+      var { data } = await supabase.from('site_settings').select('*').limit(1).single();
+      if (!data) return;
+
+      // Logo
+      if (data.logo_url) {
+        var logo = document.getElementById('siteLogo');
+        if (logo) logo.src = data.logo_url;
+      }
+
+      // Hero image
+      if (data.hero_image_url) {
+        var heroImg = document.getElementById('heroImg');
+        if (heroImg) heroImg.src = data.hero_image_url;
+        var ctaBg = document.getElementById('ctaBg');
+        if (ctaBg) ctaBg.src = data.hero_image_url;
+      }
+
+      // About image
+      if (data.about_image_url) {
+        var aboutImg = document.getElementById('aboutImg');
+        if (aboutImg) aboutImg.src = data.about_image_url;
+      }
+
+      // WhatsApp
+      if (data.whatsapp) {
+        var waUrl = 'https://wa.me/' + data.whatsapp;
+        var navWa = document.getElementById('navWhatsapp');
+        if (navWa) navWa.href = waUrl;
+        var floatWa = document.getElementById('whatsappFloat');
+        if (floatWa) floatWa.href = waUrl;
+        var socialWa = document.getElementById('socialWhatsapp');
+        if (socialWa) socialWa.href = waUrl;
+        var footerTel = document.getElementById('footerTelefone');
+        if (footerTel) footerTel.href = waUrl;
+        var contatoTel = document.getElementById('contatoTelefone');
+        if (contatoTel) contatoTel.href = waUrl;
+
+        // Format phone for display
+        var phone = data.whatsapp;
+        if (phone.length >= 13) {
+          var formatted = '(' + phone.slice(2,4) + ') ' + phone.slice(4,5) + ' ' + phone.slice(5,9) + '-' + phone.slice(9);
+          if (contatoTel) contatoTel.querySelector('p').textContent = formatted;
+          if (footerTel) footerTel.textContent = formatted;
+        }
+      }
+
+      // Email
+      if (data.email) {
+        var contatoEmail = document.getElementById('contatoEmail');
+        if (contatoEmail) {
+          contatoEmail.href = 'mailto:' + data.email;
+          contatoEmail.querySelector('p').textContent = data.email;
+        }
+        var footerEmail = document.getElementById('footerEmail');
+        if (footerEmail) {
+          footerEmail.href = 'mailto:' + data.email;
+          footerEmail.textContent = data.email;
+        }
+      }
+
+      // Social
+      if (data.instagram) {
+        var ig = document.getElementById('socialInstagram');
+        if (ig) ig.href = data.instagram;
+      }
+      if (data.facebook) {
+        var fb = document.getElementById('socialFacebook');
+        if (fb) fb.href = data.facebook;
+      }
+
+      // TikTok - add icon if URL exists
+      if (data.tiktok) {
+        var socialContainer = document.getElementById('footerSocial');
+        if (socialContainer && !document.getElementById('socialTiktok')) {
+          var tiktokLink = document.createElement('a');
+          tiktokLink.href = data.tiktok;
+          tiktokLink.target = '_blank';
+          tiktokLink.setAttribute('aria-label', 'TikTok');
+          tiktokLink.className = 'social-icon';
+          tiktokLink.id = 'socialTiktok';
+          tiktokLink.innerHTML = '<span class="social-icon-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></span>';
+          socialContainer.appendChild(tiktokLink);
+        }
+      }
+
+      // Endereco
+      if (data.endereco) {
+        var contatoEnd = document.getElementById('contatoEndereco');
+        if (contatoEnd) {
+          contatoEnd.querySelector('p').innerHTML = data.endereco.replace(/,\s*/g, '<br>');
+        }
+        var footerEnd = document.getElementById('footerEndereco');
+        if (footerEnd) {
+          footerEnd.innerHTML = data.endereco.replace(/,\s*/g, '<br>');
+        }
+      }
+
+      // Horario
+      if (data.horario_funcionamento) {
+        var horario = document.getElementById('contatoHorario');
+        if (horario) {
+          horario.querySelector('p').textContent = data.horario_funcionamento;
+        }
+      }
+    } catch (err) {
+      console.error('Settings load error:', err);
+    }
+  }
+
+  // Load environments for gallery
+  async function loadAmbientes() {
+    try {
+      var { data, error } = await supabase
+        .from('environments')
+        .select('*')
+        .eq('show_on_home', true)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+
+      var galeria = document.getElementById('galeriaAmbientes');
+      if (!galeria) return;
+
+      if (!data || data.length === 0) {
+        galeria.innerHTML = '<p style="text-align:center;color:var(--gray-500);grid-column:1/-1;padding:40px 0">Em breve nossos trabalhos.</p>';
+        return;
+      }
+
+      galeria.innerHTML = '';
+      data.forEach(function (env, index) {
+        var card = document.createElement('a');
+        card.href = 'ambiente.html?id=' + env.id;
+        card.className = 'card';
+        card.setAttribute('data-anim', '');
+        if (index > 0) card.style.transitionDelay = (index * 0.15) + 's';
+
+        card.innerHTML =
+          '<div class="card-img">' +
+            '<img src="' + (env.cover_image_url || '') + '" alt="' + env.name + '">' +
+            '<div class="card-overlay">' +
+              '<div class="card-overlay-content">' +
+                '<span class="card-category">' + env.name + '</span>' +
+                '<span class="card-overlay-btn">Ver Projetos</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-info">' +
+            '<h3>' + env.name + '</h3>' +
+            '<p>Projetos exclusivos</p>' +
+          '</div>';
+
+        galeria.appendChild(card);
+      });
+
+      // Re-init animations for new elements
+      initAnimations();
+    } catch (err) {
+      console.error('Ambientes load error:', err);
+    }
   }
 })();

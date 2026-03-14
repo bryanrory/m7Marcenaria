@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ambiente | M7 Marcenaria</title>
+  <meta name="description" content="Projetos de marcenaria - M7 Marcenaria">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,200..700;1,9..40,200..700&family=Pacifico&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Ambiente page specific styles */
+    .ambiente-hero {
+      position: relative;
+      height: 50vh;
+      min-height: 350px;
+      overflow: hidden;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ambiente-hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.3;
+    }
+
+    .ambiente-hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(13,13,13,0.4) 0%, rgba(13,13,13,0.8) 100%);
+    }
+
+    .ambiente-hero-content {
+      position: relative;
+      text-align: center;
+      color: var(--white);
+    }
+
+    .ambiente-hero-content h1 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .ambiente-hero-content .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      transition: opacity 0.3s;
+    }
+
+    .ambiente-hero-content .back-link:hover {
+      opacity: 0.7;
+    }
+
+    /* Projects section */
+    .projetos-section {
+      padding: var(--section-py) 0;
+      background: var(--cream);
+    }
+
+    .projetos-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+
+    .projeto-item {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-200);
+    }
+
+    .projeto-header {
+      padding: 32px 36px 24px;
+    }
+
+    .projeto-header h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+
+    .projeto-header p {
+      font-size: 15px;
+      color: var(--gray-500);
+      line-height: 1.8;
+      font-weight: 300;
+    }
+
+    .projeto-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 4px;
+    }
+
+    .projeto-images img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s var(--ease);
+    }
+
+    .projeto-images img:hover {
+      transform: scale(1.02);
+    }
+
+    .no-projects {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-500);
+      font-size: 16px;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: #fff;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .lightbox-close:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .projeto-header {
+        padding: 24px 20px 16px;
+      }
+      .projeto-images {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header (same as main site) -->
+  <header id="header" class="scrolled">
+    <div class="container header-inner">
+      <a href="index.html" class="logo-link">
+        <img src="" alt="M7 Marcenaria" class="logo" id="siteLogo">
+        <div class="logo-texto">
+          <span class="logo-nome">m7</span>
+          <span class="logo-destaque">MARCENARIA</span>
+        </div>
+      </a>
+      <nav id="nav">
+        <a href="index.html" class="nav-link">Início</a>
+        <a href="index.html#sobre" class="nav-link">Sobre</a>
+        <a href="index.html#trabalhos" class="nav-link active">Trabalhos</a>
+        <a href="index.html#contato" class="nav-link">Contato</a>
+        <a href="#" target="_blank" class="nav-cta" id="navWhatsapp">
+          <span class="nav-cta-icon">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.558 4.143 1.534 5.886L.058 23.65l5.9-1.547A11.93 11.93 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.978 0-3.81-.563-5.365-1.535l-.385-.23-3.498.917.935-3.412-.252-.4A9.772 9.772 0 012.18 12 9.82 9.82 0 0112 2.18 9.82 9.82 0 0121.82 12 9.82 9.82 0 0112 21.82z"/></svg>
+          </span>
+          Orçamento
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="ambiente-hero">
+    <img src="" alt="" class="ambiente-hero-bg" id="ambienteHeroBg">
+    <div class="ambiente-hero-overlay"></div>
+    <div class="ambiente-hero-content">
+      <a href="index.html#trabalhos" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar
+      </a>
+      <h1 id="ambienteName">Carregando...</h1>
+    </div>
+  </section>
+
+  <!-- Projetos -->
+  <section class="projetos-section">
+    <div class="container">
+      <div class="projetos-grid" id="projetosGrid">
+        <div class="no-projects">Carregando projetos...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close">&times;</button>
+    <img src="" alt="" id="lightboxImg">
+  </div>
+
+  <!-- Footer (simplified) -->
+  <footer>
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <p>&copy; 2026 <span class="brand-m7">m7</span> <span class="brand-marcenaria">MARCENARIA</span>. Todos os direitos reservados.</p>
+        <p class="footer-credits">Powered by Rory Systems</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // Get environment ID from URL
+      var params = new URLSearchParams(window.location.search);
+      var envId = params.get('id');
+
+      if (!envId) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Load settings for header
+      async function loadSiteSettings() {
+        try {
+          var { data } = await supabase.from('site_settings').select('*').limit(1).single();
+          if (!data) return;
+
+          var logo = document.getElementById('siteLogo');
+          if (data.logo_url) logo.src = data.logo_url;
+          else logo.style.display = 'none';
+
+          if (data.whatsapp) {
+            document.getElementById('navWhatsapp').href = 'https://wa.me/' + data.whatsapp;
+          }
+        } catch (e) {}
+      }
+
+      // Load environment and projects
+      async function loadAmbiente() {
+        try {
+          var { data: env } = await supabase
+            .from('environments')
+            .select('*')
+            .eq('id', envId)
+            .single();
+
+          if (!env) {
+            window.location.href = 'index.html';
+            return;
+          }
+
+          document.title = env.name + ' | M7 Marcenaria';
+          document.getElementById('ambienteName').textContent = env.name;
+
+          if (env.cover_image_url) {
+            document.getElementById('ambienteHeroBg').src = env.cover_image_url;
+          }
+
+          // Load projects
+          var { data: projects } = await supabase
+            .from('projects')
+            .select('*, project_images(id, image_url)')
+            .eq('environment_id', envId)
+            .order('created_at', { ascending: false });
+
+          var grid = document.getElementById('projetosGrid');
+
+          if (!projects || projects.length === 0) {
+            grid.innerHTML = '<div class="no-projects">Nenhum projeto encontrado neste ambiente.</div>';
+            return;
+          }
+
+          grid.innerHTML = '';
+          projects.forEach(function (proj) {
+            var item = document.createElement('div');
+            item.className = 'projeto-item';
+
+            var imagesHtml = '';
+            if (proj.project_images && proj.project_images.length > 0) {
+              imagesHtml = '<div class="projeto-images">';
+              proj.project_images.forEach(function (img) {
+                imagesHtml += '<img src="' + img.image_url + '" alt="' + proj.title + '" onclick="openLightbox(this.src)">';
+              });
+              imagesHtml += '</div>';
+            }
+
+            item.innerHTML =
+              '<div class="projeto-header">' +
+                '<h2>' + proj.title + '</h2>' +
+                (proj.description ? '<p>' + proj.description + '</p>' : '') +
+              '</div>' +
+              imagesHtml;
+
+            grid.appendChild(item);
+          });
+        } catch (err) {
+          console.error('Ambiente load error:', err);
+          document.getElementById('projetosGrid').innerHTML =
+            '<div class="no-projects">Erro ao carregar ambiente.</div>';
+        }
+      }
+
+      loadSiteSettings();
+      loadAmbiente();
+
+      // Lightbox
+      var lightbox = document.getElementById('lightbox');
+      var lightboxImg = document.getElementById('lightboxImg');
+
+      window.openLightbox = function (src) {
+        lightboxImg.src = src;
+        lightbox.classList.add('active');
+      };
+
+      lightbox.addEventListener('click', function (e) {
+        if (e.target !== lightboxImg) {
+          lightbox.classList.remove('active');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
