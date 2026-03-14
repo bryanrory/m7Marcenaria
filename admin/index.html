@@ -153,6 +153,11 @@
       return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
     }
 
+    // Garante que a URL termina com / para resolver caminhos relativos corretamente
+    if (!window.location.pathname.endsWith('/') && !window.location.pathname.endsWith('.html')) {
+      window.location.replace(window.location.pathname + '/' + window.location.search);
+    }
+
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       var btn = this.querySelector('button');
