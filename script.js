@@ -243,11 +243,16 @@
             '</a>';
         }
 
-        if (data.endereco) {
+        if (data.endereco_rua) {
+          var endFull = data.endereco_rua + ', ' + (data.endereco_numero || '') + ', ' + (data.endereco_bairro || '') + ', ' + (data.endereco_cidade || '') + ' - ' + (data.endereco_estado || '') + ', ' + (data.endereco_cep || '');
+          var endDisplay = data.endereco_rua + ', ' + (data.endereco_numero || '') +
+            (data.endereco_bairro ? '<br>' + data.endereco_bairro : '') +
+            (data.endereco_cidade ? '<br>' + data.endereco_cidade + (data.endereco_estado ? ' - ' + data.endereco_estado : '') : '') +
+            (data.endereco_cep ? '<br>' + data.endereco_cep : '');
           contatoGrid.innerHTML +=
-            '<a href="https://www.google.com/maps/search/' + encodeURIComponent(data.endereco) + '" target="_blank" class="contato-item" data-anim>' +
+            '<a href="https://www.google.com/maps/search/' + encodeURIComponent(endFull) + '" target="_blank" class="contato-item" data-anim>' +
               '<div class="contato-icone"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>' +
-              '<h3>Endereço</h3><p>' + data.endereco.replace(/,\s*/g, '<br>') + '</p>' +
+              '<h3>Endereço</h3><p>' + endDisplay + '</p>' +
             '</a>';
         }
 
@@ -304,8 +309,12 @@
         if (data.email) {
           footerContatoHtml += '<a href="mailto:' + data.email + '">' + data.email + '</a>';
         }
-        if (data.endereco) {
-          footerContatoHtml += '<a href="https://www.google.com/maps/search/' + encodeURIComponent(data.endereco) + '" target="_blank">' + data.endereco.replace(/,\s*/g, '<br>') + '</a>';
+        if (data.endereco_rua) {
+          var footerEndFull = data.endereco_rua + ', ' + (data.endereco_numero || '') + ', ' + (data.endereco_bairro || '') + ', ' + (data.endereco_cidade || '') + ' - ' + (data.endereco_estado || '');
+          var footerEndDisplay = data.endereco_rua + ', ' + (data.endereco_numero || '') +
+            (data.endereco_bairro ? '<br>' + data.endereco_bairro : '') +
+            (data.endereco_cidade ? '<br>' + data.endereco_cidade + (data.endereco_estado ? ' - ' + data.endereco_estado : '') : '');
+          footerContatoHtml += '<a href="https://www.google.com/maps/search/' + encodeURIComponent(footerEndFull) + '" target="_blank">' + footerEndDisplay + '</a>';
         }
         footerContato.innerHTML = footerContatoHtml;
       }

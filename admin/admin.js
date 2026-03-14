@@ -200,7 +200,12 @@
       document.getElementById('setInstagram').value = data.instagram || '';
       document.getElementById('setFacebook').value = data.facebook || '';
       document.getElementById('setTiktok').value = data.tiktok || '';
-      document.getElementById('setEndereco').value = data.endereco || '';
+      document.getElementById('setRua').value = data.endereco_rua || '';
+      document.getElementById('setNumero').value = data.endereco_numero || '';
+      document.getElementById('setBairro').value = data.endereco_bairro || '';
+      document.getElementById('setCidade').value = data.endereco_cidade || '';
+      document.getElementById('setEstado').value = data.endereco_estado || '';
+      document.getElementById('setCep').value = data.endereco_cep || '';
       document.getElementById('setHorario').value = data.horario_funcionamento || '';
 
       if (data.logo_url) {
@@ -233,7 +238,12 @@
         instagram: document.getElementById('setInstagram').value,
         facebook: document.getElementById('setFacebook').value,
         tiktok: document.getElementById('setTiktok').value,
-        endereco: document.getElementById('setEndereco').value,
+        endereco_rua: document.getElementById('setRua').value,
+        endereco_numero: document.getElementById('setNumero').value,
+        endereco_bairro: document.getElementById('setBairro').value,
+        endereco_cidade: document.getElementById('setCidade').value,
+        endereco_estado: document.getElementById('setEstado').value,
+        endereco_cep: document.getElementById('setCep').value,
         horario_funcionamento: document.getElementById('setHorario').value
       };
 
