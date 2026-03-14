@@ -186,9 +186,10 @@
       if (!data) return;
 
       // Logo
-      if (data.logo_url) {
-        var logo = document.getElementById('siteLogo');
-        if (logo) logo.src = data.logo_url;
+      var logo = document.getElementById('siteLogo');
+      if (logo && data.logo_url) {
+        logo.src = data.logo_url;
+        logo.style.display = '';
       }
 
       // Hero image
@@ -209,83 +210,106 @@
       if (data.whatsapp) {
         var waUrl = 'https://wa.me/' + data.whatsapp;
         var navWa = document.getElementById('navWhatsapp');
-        if (navWa) navWa.href = waUrl;
+        if (navWa) { navWa.href = waUrl; navWa.style.display = ''; }
         var floatWa = document.getElementById('whatsappFloat');
-        if (floatWa) floatWa.href = waUrl;
-        var socialWa = document.getElementById('socialWhatsapp');
-        if (socialWa) socialWa.href = waUrl;
-        var footerTel = document.getElementById('footerTelefone');
-        if (footerTel) footerTel.href = waUrl;
-        var contatoTel = document.getElementById('contatoTelefone');
-        if (contatoTel) contatoTel.href = waUrl;
+        if (floatWa) { floatWa.href = waUrl; floatWa.style.display = ''; }
+      }
 
-        // Format phone for display
-        var phone = data.whatsapp;
-        if (phone.length >= 13) {
-          var formatted = '(' + phone.slice(2,4) + ') ' + phone.slice(4,5) + ' ' + phone.slice(5,9) + '-' + phone.slice(9);
-          if (contatoTel) contatoTel.querySelector('p').textContent = formatted;
-          if (footerTel) footerTel.textContent = formatted;
+      // Format phone for display
+      var formattedPhone = '';
+      if (data.whatsapp && data.whatsapp.length >= 13) {
+        var p = data.whatsapp;
+        formattedPhone = '(' + p.slice(2,4) + ') ' + p.slice(4,5) + ' ' + p.slice(5,9) + '-' + p.slice(9);
+      }
+
+      // Build contato grid dynamically
+      var contatoGrid = document.getElementById('contatoGrid');
+      if (contatoGrid) {
+        contatoGrid.innerHTML = '';
+
+        if (data.whatsapp) {
+          contatoGrid.innerHTML +=
+            '<a href="https://wa.me/' + data.whatsapp + '" target="_blank" class="contato-item" data-anim>' +
+              '<div class="contato-icone"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div>' +
+              '<h3>Telefone</h3><p>' + formattedPhone + '</p>' +
+            '</a>';
         }
-      }
 
-      // Email
-      if (data.email) {
-        var contatoEmail = document.getElementById('contatoEmail');
-        if (contatoEmail) {
-          contatoEmail.href = 'mailto:' + data.email;
-          contatoEmail.querySelector('p').textContent = data.email;
+        if (data.email) {
+          contatoGrid.innerHTML +=
+            '<a href="mailto:' + data.email + '" class="contato-item" data-anim>' +
+              '<div class="contato-icone"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>' +
+              '<h3>E-mail</h3><p>' + data.email + '</p>' +
+            '</a>';
         }
-        var footerEmail = document.getElementById('footerEmail');
-        if (footerEmail) {
-          footerEmail.href = 'mailto:' + data.email;
-          footerEmail.textContent = data.email;
+
+        if (data.endereco) {
+          contatoGrid.innerHTML +=
+            '<a href="https://www.google.com/maps/search/' + encodeURIComponent(data.endereco) + '" target="_blank" class="contato-item" data-anim>' +
+              '<div class="contato-icone"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>' +
+              '<h3>Endereço</h3><p>' + data.endereco.replace(/,\s*/g, '<br>') + '</p>' +
+            '</a>';
         }
-      }
 
-      // Social
-      if (data.instagram) {
-        var ig = document.getElementById('socialInstagram');
-        if (ig) ig.href = data.instagram;
-      }
-      if (data.facebook) {
-        var fb = document.getElementById('socialFacebook');
-        if (fb) fb.href = data.facebook;
-      }
-
-      // TikTok - add icon if URL exists
-      if (data.tiktok) {
-        var socialContainer = document.getElementById('footerSocial');
-        if (socialContainer && !document.getElementById('socialTiktok')) {
-          var tiktokLink = document.createElement('a');
-          tiktokLink.href = data.tiktok;
-          tiktokLink.target = '_blank';
-          tiktokLink.setAttribute('aria-label', 'TikTok');
-          tiktokLink.className = 'social-icon';
-          tiktokLink.id = 'socialTiktok';
-          tiktokLink.innerHTML = '<span class="social-icon-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></span>';
-          socialContainer.appendChild(tiktokLink);
+        if (data.horario_funcionamento) {
+          contatoGrid.innerHTML +=
+            '<div class="contato-item" data-anim>' +
+              '<div class="contato-icone"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
+              '<h3>Horário</h3><p>' + data.horario_funcionamento + '</p>' +
+            '</div>';
         }
       }
 
-      // Endereco
-      if (data.endereco) {
-        var contatoEnd = document.getElementById('contatoEndereco');
-        if (contatoEnd) {
-          contatoEnd.querySelector('p').innerHTML = data.endereco.replace(/,\s*/g, '<br>');
+      // Build footer social dynamically
+      var footerSocial = document.getElementById('footerSocial');
+      if (footerSocial) {
+        footerSocial.innerHTML = '';
+
+        if (data.instagram) {
+          footerSocial.innerHTML +=
+            '<a href="' + data.instagram + '" target="_blank" aria-label="Instagram" class="social-icon">' +
+              '<span class="social-icon-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></span>' +
+            '</a>';
         }
-        var footerEnd = document.getElementById('footerEndereco');
-        if (footerEnd) {
-          footerEnd.innerHTML = data.endereco.replace(/,\s*/g, '<br>');
+
+        if (data.facebook) {
+          footerSocial.innerHTML +=
+            '<a href="' + data.facebook + '" target="_blank" aria-label="Facebook" class="social-icon">' +
+              '<span class="social-icon-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></span>' +
+            '</a>';
+        }
+
+        if (data.whatsapp) {
+          footerSocial.innerHTML +=
+            '<a href="https://wa.me/' + data.whatsapp + '" target="_blank" aria-label="WhatsApp" class="social-icon">' +
+              '<span class="social-icon-inner"><svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor"><path d="M16.004 0h-.008C7.174 0 0 7.176 0 16.004c0 3.5 1.128 6.744 3.046 9.378L1.054 31.29l6.118-1.958A15.93 15.93 0 0016.004 32C24.826 32 32 24.826 32 16.004S24.826 0 16.004 0zm9.316 22.594c-.39 1.1-1.932 2.014-3.17 2.28-.846.18-1.95.324-5.67-1.218-4.762-1.972-7.826-6.81-8.064-7.124-.23-.314-1.932-2.572-1.932-4.904s1.224-3.476 1.658-3.952c.434-.476.948-.596 1.264-.596.314 0 .63.002.904.016.29.016.68-.11 1.064.812.39.948 1.328 3.238 1.444 3.472.116.234.194.506.038.82-.156.314-.234.508-.468.782-.234.274-.492.612-.702.822-.234.234-.478.488-.206.96s1.214 2.004 2.606 3.248c1.79 1.598 3.298 2.094 3.77 2.328.47.234.746.196 1.02-.118.274-.314 1.178-1.374 1.492-1.846.314-.476.63-.39 1.064-.234.434.156 2.762 1.302 3.234 1.538.476.234.79.352.906.548.116.196.116 1.138-.274 2.236z"/></svg></span>' +
+            '</a>';
+        }
+
+        if (data.tiktok) {
+          footerSocial.innerHTML +=
+            '<a href="' + data.tiktok + '" target="_blank" aria-label="TikTok" class="social-icon">' +
+              '<span class="social-icon-inner"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></span>' +
+            '</a>';
         }
       }
 
-      // Horario
-      if (data.horario_funcionamento) {
-        var horario = document.getElementById('contatoHorario');
-        if (horario) {
-          horario.querySelector('p').textContent = data.horario_funcionamento;
+      // Build footer contato dynamically
+      var footerContato = document.getElementById('footerContato');
+      if (footerContato) {
+        var footerContatoHtml = '<h4>Contato</h4>';
+        if (data.whatsapp) {
+          footerContatoHtml += '<a href="https://wa.me/' + data.whatsapp + '" target="_blank">' + formattedPhone + '</a>';
         }
+        if (data.email) {
+          footerContatoHtml += '<a href="mailto:' + data.email + '">' + data.email + '</a>';
+        }
+        if (data.endereco) {
+          footerContatoHtml += '<a href="https://www.google.com/maps/search/' + encodeURIComponent(data.endereco) + '" target="_blank">' + data.endereco.replace(/,\s*/g, '<br>') + '</a>';
+        }
+        footerContato.innerHTML = footerContatoHtml;
       }
+
     } catch (err) {
       console.error('Settings load error:', err);
     }
@@ -309,6 +333,16 @@
       if (!data || data.length === 0) {
         galeria.innerHTML = '<p style="text-align:center;color:var(--gray-500);grid-column:1/-1;padding:40px 0">Em breve nossos trabalhos.</p>';
         return;
+      }
+
+      // Build footer services from environments
+      var footerServicos = document.getElementById('footerServicos');
+      if (footerServicos) {
+        var servicosHtml = '<h4>Serviços</h4>';
+        data.forEach(function (env) {
+          servicosHtml += '<a href="ambiente.html?id=' + env.id + '">' + env.name + '</a>';
+        });
+        footerServicos.innerHTML = servicosHtml;
       }
 
       galeria.innerHTML = '';
