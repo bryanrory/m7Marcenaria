@@ -355,7 +355,7 @@
       if (footerServicos) {
         var servicosHtml = '<h4>Serviços</h4>';
         data.forEach(function (env) {
-          servicosHtml += '<a href="ambiente.html?id=' + env.id + '">' + env.name + '</a>';
+          servicosHtml += '<a href="/ambiente/' + (env.slug || env.id) + '/">' + env.name + '</a>';
         });
         footerServicos.innerHTML = servicosHtml;
       }
@@ -363,7 +363,7 @@
       galeria.innerHTML = '';
       data.forEach(function (env, index) {
         var card = document.createElement('a');
-        card.href = 'ambiente.html?id=' + env.id;
+        card.href = '/ambiente/' + (env.slug || env.id) + '/';
         card.className = 'card';
         card.setAttribute('data-anim', '');
         if (index > 0) card.style.transitionDelay = (index * 0.15) + 's';

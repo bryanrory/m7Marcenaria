@@ -258,12 +258,21 @@
     (function () {
       'use strict';
 
-      // Get environment ID from URL
-      var params = new URLSearchParams(window.location.search);
-      var envId = params.get('id');
+      // Get slug from URL path: /ambiente/slug/ or fallback to ?id=
+      var slug = null;
+      var envId = null;
+      var pathParts = window.location.pathname.replace(/\/+$/, '').split('/');
+      var lastPart = pathParts[pathParts.length - 1];
 
-      if (!envId) {
-        window.location.href = 'index.html';
+      if (lastPart && lastPart !== 'ambiente' && lastPart !== 'ambiente.html') {
+        slug = decodeURIComponent(lastPart);
+      } else {
+        var params = new URLSearchParams(window.location.search);
+        envId = params.get('id');
+      }
+
+      if (!slug && !envId) {
+        window.location.href = '/';
         return;
       }
 
@@ -286,16 +295,21 @@
       // Load environment and projects
       async function loadAmbiente() {
         try {
-          var { data: env } = await supabase
-            .from('environments')
-            .select('*')
-            .eq('id', envId)
-            .single();
+          var query = supabase.from('environments').select('*');
+          if (slug) {
+            query = query.eq('slug', slug);
+          } else {
+            query = query.eq('id', envId);
+          }
+          var { data: env } = await query.single();
 
           if (!env) {
-            window.location.href = 'index.html';
+            window.location.href = '/';
             return;
           }
+
+          // Set envId for project query
+          envId = env.id;
 
           document.title = env.name + ' | M7 Marcenaria';
           document.getElementById('ambienteName').textContent = env.name;

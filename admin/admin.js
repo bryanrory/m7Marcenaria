@@ -373,10 +373,15 @@
 
     try {
       var id = document.getElementById('envId').value;
+      var envName = document.getElementById('envName').value;
       var envData = {
-        name: document.getElementById('envName').value,
+        name: envName,
         description: document.getElementById('envDescription').value,
-        show_on_home: document.getElementById('envShowHome').checked
+        show_on_home: document.getElementById('envShowHome').checked,
+        slug: envName.toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '')
       };
 
       var coverFile = document.querySelector('#uploadEnvCover input[type="file"]').files[0];

@@ -197,7 +197,7 @@
           grid.innerHTML = '';
           data.forEach(function (env) {
             var card = document.createElement('a');
-            card.href = 'ambiente.html?id=' + env.id;
+            card.href = '/ambiente/' + (env.slug || env.id) + '/';
             card.className = 'card';
 
             card.innerHTML =
