@@ -1068,35 +1068,40 @@ footer {
   gap: 10px;
 }
 
-.footer-social a {
+.social-icon {
   width: 40px;
   height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-decoration: none;
   transition: all 0.3s var(--ease);
-  line-height: 0;
-  padding: 0;
+  position: relative;
 }
 
-.footer-social a svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  stroke: rgba(255, 255, 255, 0.4);
-  transition: stroke 0.3s var(--ease);
+.social-icon-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.footer-social a:hover {
+.social-icon-inner svg {
+  display: block;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.3s var(--ease);
+}
+
+.social-icon:hover {
   border-color: var(--gold);
   background: var(--gold);
 }
 
-.footer-social a:hover svg {
-  stroke: var(--dark);
+.social-icon:hover .social-icon-inner svg {
+  color: var(--dark);
 }
 
 /* Footer columns */
