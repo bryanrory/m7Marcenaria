@@ -319,6 +319,7 @@
   document.getElementById('btnNewEnv').addEventListener('click', function () {
     document.getElementById('envId').value = '';
     document.getElementById('envName').value = '';
+    document.getElementById('envDescription').value = '';
     document.getElementById('envShowHome').checked = true;
     document.getElementById('previewEnvCover').style.display = 'none';
     document.querySelector('#uploadEnvCover input[type="file"]').value = '';
@@ -334,6 +335,7 @@
 
       document.getElementById('envId').value = data.id;
       document.getElementById('envName').value = data.name;
+      document.getElementById('envDescription').value = data.description || '';
       document.getElementById('envShowHome').checked = data.show_on_home;
       document.querySelector('#uploadEnvCover input[type="file"]').value = '';
 
@@ -363,6 +365,7 @@
       var id = document.getElementById('envId').value;
       var envData = {
         name: document.getElementById('envName').value,
+        description: document.getElementById('envDescription').value,
         show_on_home: document.getElementById('envShowHome').checked
       };
 

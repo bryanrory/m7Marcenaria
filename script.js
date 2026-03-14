@@ -331,7 +331,7 @@
           '</div>' +
           '<div class="card-info">' +
             '<h3>' + env.name + '</h3>' +
-            '<p>Projetos exclusivos</p>' +
+            '<p>' + (env.description || 'Projetos exclusivos') + '</p>' +
           '</div>';
 
         galeria.appendChild(card);

@@ -765,6 +765,12 @@ section h2 {
   gap: 28px;
 }
 
+a.card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .card {
   background: var(--white);
   border-radius: 10px;
