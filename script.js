@@ -327,6 +327,12 @@
   // Load environments for gallery
   async function loadAmbientes() {
     try {
+      // Count total visible environments
+      var { count: totalCount } = await supabase
+        .from('environments')
+        .select('*', { count: 'exact', head: true })
+        .eq('show_on_home', true);
+
       var { data, error } = await supabase
         .from('environments')
         .select('*')
@@ -379,6 +385,14 @@
 
         galeria.appendChild(card);
       });
+
+      // Show "Ver Todos" button if more than 6
+      if (totalCount > 6) {
+        var btnWrap = document.createElement('div');
+        btnWrap.style.cssText = 'text-align:center;grid-column:1/-1;margin-top:20px';
+        btnWrap.innerHTML = '<a href="ambientes.html" class="btn btn-primario"><span>Ver Todos os Ambientes</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>';
+        galeria.appendChild(btnWrap);
+      }
 
       // Re-init animations for new elements
       initAnimations();
