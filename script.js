@@ -374,13 +374,13 @@
             '<div class="card-overlay">' +
               '<div class="card-overlay-content">' +
                 '<span class="card-category">' + env.name + '</span>' +
-                '<span class="card-overlay-btn">Ver Projetos</span>' +
+                '<span class="card-overlay-btn">Ver Fotos</span>' +
               '</div>' +
             '</div>' +
           '</div>' +
           '<div class="card-info">' +
             '<h3>' + env.name + '</h3>' +
-            '<p>' + (env.description || 'Projetos exclusivos') + '</p>' +
+            '<p>' + (env.description || 'Ambiente exclusivo') + '</p>' +
           '</div>';
 
         galeria.appendChild(card);

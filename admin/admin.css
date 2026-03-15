@@ -466,48 +466,166 @@ body {
   display: none;
 }
 
-/* Image gallery in project edit */
-.image-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 0.75rem;
-  margin-top: 1rem;
+/* Large modal */
+.modal-lg {
+  max-width: 800px;
 }
 
-.image-gallery-item {
-  position: relative;
-  aspect-ratio: 4/3;
-  border-radius: 6px;
-  overflow: hidden;
+/* Photos hint */
+.photos-hint {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(201, 169, 110, 0.08);
+  border-left: 3px solid #c9a96e;
+  border-radius: 0 6px 6px 0;
+}
+
+/* Upload progress */
+.upload-progress {
+  margin: 1rem 0;
+}
+
+.progress-bar {
+  height: 6px;
   background: #222;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.image-gallery-item img {
-  width: 100%;
+.progress-fill {
   height: 100%;
-  object-fit: cover;
+  background: #c9a96e;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  width: 0%;
 }
 
-.image-gallery-item .remove-img {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
-  background: rgba(231, 76, 60, 0.9);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 0.75rem;
+.upload-progress p {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.4rem;
+}
+
+/* No photos message */
+.no-photos {
+  text-align: center;
+  color: #555;
+  padding: 2rem;
+  font-size: 0.9rem;
+}
+
+/* Placeholder for cards without image */
+.item-card-img-placeholder {
+  width: 80px;
+  height: 60px;
+  border-radius: 6px;
+  background: #1a1a1a;
+  border: 1px dashed #333;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #444;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+
+/* Environment photo gallery */
+.env-photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.photo-card {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #222;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.photo-card.is-cover {
+  border-color: #c9a96e;
+}
+
+.photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.photo-card .photo-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
   opacity: 0;
   transition: opacity 0.2s;
 }
 
-.image-gallery-item:hover .remove-img {
+.photo-card:hover .photo-actions {
+  opacity: 1;
+}
+
+.photo-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.photo-btn-cover {
+  background: rgba(30, 30, 30, 0.85);
+  color: #666;
+}
+
+.photo-btn-cover:hover,
+.photo-btn-cover.active {
+  background: rgba(201, 169, 110, 0.95);
+  color: #fff;
+}
+
+.photo-btn-delete {
+  background: rgba(30, 30, 30, 0.85);
+  color: #888;
+}
+
+.photo-btn-delete:hover {
+  background: rgba(231, 76, 60, 0.95);
+  color: #fff;
+}
+
+/* Cover badge */
+.cover-badge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(201, 169, 110, 0.95);
+  color: #0a0a0a;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Always show cover star */
+.photo-card.is-cover .photo-btn-cover {
+  opacity: 1;
+}
+.photo-card.is-cover .photo-actions {
   opacity: 1;
 }
 
@@ -707,6 +825,14 @@ body {
 
   .stats-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .env-photo-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+
+  .modal-lg {
+    max-width: 100%;
   }
 }
 

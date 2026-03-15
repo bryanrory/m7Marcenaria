@@ -31,10 +31,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Ambientes
       </a>
-      <a href="#" class="sidebar-link" data-section="projects">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-        Projetos
-      </a>
     </nav>
     <div class="sidebar-footer">
       <button class="btn-logout" id="btnLogout">Sair</button>
@@ -70,14 +66,9 @@
             <div class="desc">Visíveis na página inicial</div>
           </div>
           <div class="stat-card">
-            <h3>Projetos</h3>
-            <div class="value" id="statProj">-</div>
-            <div class="desc">Total cadastrados</div>
-          </div>
-          <div class="stat-card">
-            <h3>Imagens</h3>
+            <h3>Fotos</h3>
             <div class="value" id="statImg">-</div>
-            <div class="desc">Total de imagens</div>
+            <div class="desc">Total de fotos</div>
           </div>
         </div>
       </div>
@@ -191,16 +182,6 @@
         </div>
       </div>
 
-      <!-- ==================== PROJETOS ==================== -->
-      <div class="admin-section" id="sec-projects">
-        <div class="list-header">
-          <h3>Projetos</h3>
-          <button class="btn btn-primary btn-sm" id="btnNewProj">+ Novo Projeto</button>
-        </div>
-        <div class="item-list" id="projList">
-          <div class="loading"><div class="spinner"></div><p>Carregando...</p></div>
-        </div>
-      </div>
 
     </div>
   </div>
@@ -220,15 +201,6 @@
           <input type="text" id="envDescription" placeholder="Ex: Design funcional com acabamento premium">
         </div>
         <div class="form-group">
-          <label>Imagem de Capa</label>
-          <div class="upload-area" id="uploadEnvCover">
-            <input type="file" accept="image/*">
-            <div class="upload-icon">+</div>
-            <p>Enviar imagem de capa</p>
-            <img class="upload-preview" id="previewEnvCover">
-          </div>
-        </div>
-        <div class="form-group">
           <div class="toggle-wrap">
             <label class="toggle">
               <input type="checkbox" id="envShowHome" checked>
@@ -245,40 +217,30 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL PROJETO ==================== -->
-  <div class="modal-overlay" id="modalProj">
-    <div class="modal">
-      <h3 id="modalProjTitle">Novo Projeto</h3>
-      <form id="projForm">
-        <input type="hidden" id="projId">
-        <div class="form-group">
-          <label>Ambiente</label>
-          <select id="projEnvId" required>
-            <option value="">Selecione um ambiente</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Título</label>
-          <input type="text" id="projTitle" required placeholder="Ex: Cozinha Moderna">
-        </div>
-        <div class="form-group">
-          <label>Descrição</label>
-          <textarea id="projDesc" placeholder="Descrição do projeto"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Imagens do Projeto</label>
-          <div class="upload-area" id="uploadProjImages">
-            <input type="file" accept="image/*" multiple>
-            <div class="upload-icon">+</div>
-            <p>Enviar imagens (múltiplas)</p>
-          </div>
-          <div class="image-gallery" id="projImageGallery"></div>
-        </div>
-        <div class="btn-group">
-          <button type="submit" class="btn btn-primary">Salvar</button>
-          <button type="button" class="btn btn-secondary" onclick="closeModal('modalProj')">Cancelar</button>
-        </div>
-      </form>
+  <!-- ==================== MODAL FOTOS DO AMBIENTE ==================== -->
+  <div class="modal-overlay" id="modalEnvPhotos">
+    <div class="modal modal-lg">
+      <h3 id="modalEnvPhotosTitle">Fotos do Ambiente</h3>
+      <input type="hidden" id="envPhotosId">
+
+      <p class="photos-hint">Clique na estrela para definir a foto de capa do ambiente.</p>
+
+      <div class="upload-area" id="uploadEnvImages">
+        <input type="file" accept="image/*" multiple>
+        <div class="upload-icon">+</div>
+        <p>Clique ou arraste para enviar fotos (pode selecionar várias)</p>
+      </div>
+
+      <div class="upload-progress" id="uploadProgress" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <p id="progressText">Enviando...</p>
+      </div>
+
+      <div class="env-photo-gallery" id="envPhotoGallery"></div>
+
+      <div class="btn-group" style="justify-content:flex-end">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalEnvPhotos')">Fechar</button>
+      </div>
     </div>
   </div>
 

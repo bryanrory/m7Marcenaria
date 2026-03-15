@@ -23,8 +23,7 @@
   var sectionTitles = {
     dashboard: 'Dashboard',
     settings: 'Configurações do Site',
-    environments: 'Ambientes',
-    projects: 'Projetos'
+    environments: 'Ambientes'
   };
 
   function switchSection(name) {
@@ -40,7 +39,6 @@
     if (name === 'dashboard') loadDashboard();
     if (name === 'settings') loadSettings();
     if (name === 'environments') loadEnvironments();
-    if (name === 'projects') loadProjects();
   }
 
   sidebarLinks.forEach(function (link) {
@@ -120,7 +118,7 @@
     return urlData.publicUrl;
   }
 
-  // Setup upload preview
+  // Setup upload preview for settings
   function setupUploadPreview(areaId, previewId) {
     var area = document.getElementById(areaId);
     var preview = document.getElementById(previewId);
@@ -141,32 +139,6 @@
   setupUploadPreview('uploadLogo', 'previewLogo');
   setupUploadPreview('uploadHero', 'previewHero');
   setupUploadPreview('uploadAbout', 'previewAbout');
-  setupUploadPreview('uploadEnvCover', 'previewEnvCover');
-
-  // Preview para upload múltiplo de imagens do projeto
-  (function () {
-    var input = document.querySelector('#uploadProjImages input[type="file"]');
-    if (input) {
-      input.addEventListener('change', function () {
-        var gallery = document.getElementById('projImageGallery');
-        // Remove previews anteriores (não salvos)
-        gallery.querySelectorAll('.preview-new').forEach(function (el) { el.remove(); });
-
-        for (var i = 0; i < this.files.length; i++) {
-          (function (file) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
-              var item = document.createElement('div');
-              item.className = 'image-gallery-item preview-new';
-              item.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
-              gallery.appendChild(item);
-            };
-            reader.readAsDataURL(file);
-          })(this.files[i]);
-        }
-      });
-    }
-  })();
 
   // ========================================
   // DASHBOARD
@@ -175,12 +147,10 @@
     try {
       var { count: envCount } = await supabase.from('environments').select('*', { count: 'exact', head: true });
       var { count: homeCount } = await supabase.from('environments').select('*', { count: 'exact', head: true }).eq('show_on_home', true);
-      var { count: projCount } = await supabase.from('projects').select('*', { count: 'exact', head: true });
-      var { count: imgCount } = await supabase.from('project_images').select('*', { count: 'exact', head: true });
+      var { count: imgCount } = await supabase.from('environment_images').select('*', { count: 'exact', head: true });
 
       document.getElementById('statEnv').textContent = envCount || 0;
       document.getElementById('statHome').textContent = homeCount || 0;
-      document.getElementById('statProj').textContent = projCount || 0;
       document.getElementById('statImg').textContent = imgCount || 0;
     } catch (err) {
       console.error('Dashboard error:', err);
@@ -285,7 +255,7 @@
     try {
       var { data, error } = await supabase
         .from('environments')
-        .select('*')
+        .select('*, environment_images(id, image_url, is_cover)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -297,27 +267,39 @@
 
       list.innerHTML = '';
       data.forEach(function (env) {
+        var images = env.environment_images || [];
+        var coverImg = images.find(function (i) { return i.is_cover; });
+        var coverUrl = coverImg ? coverImg.image_url : (env.cover_image_url || '');
+        var photoCount = images.length;
+
         var card = document.createElement('div');
         card.className = 'item-card';
         card.innerHTML =
-          '<img class="item-card-img" src="' + (env.cover_image_url || '') + '" alt="' + env.name + '" onerror="this.style.display=\'none\'">' +
+          (coverUrl ? '<img class="item-card-img" src="' + coverUrl + '" alt="' + env.name + '" onerror="this.style.display=\'none\'">' : '<div class="item-card-img-placeholder">Sem foto</div>') +
           '<div class="item-card-info">' +
             '<h4>' + env.name + '</h4>' +
-            '<p>' + (env.show_on_home ? '<span class="badge badge-green">Na Home</span>' : '<span class="badge badge-gray">Oculto</span>') + '</p>' +
+            '<p>' +
+              (env.show_on_home ? '<span class="badge badge-green">Na Home</span>' : '<span class="badge badge-gray">Oculto</span>') +
+              ' &bull; ' + photoCount + ' foto' + (photoCount !== 1 ? 's' : '') +
+            '</p>' +
           '</div>' +
           '<div class="item-card-actions">' +
+            '<button class="btn btn-primary btn-sm" data-photos-env="' + env.id + '">Fotos</button>' +
             '<button class="btn btn-secondary btn-sm" data-edit-env="' + env.id + '">Editar</button>' +
             '<button class="btn btn-danger btn-sm" data-del-env="' + env.id + '">Excluir</button>' +
           '</div>';
         list.appendChild(card);
       });
 
-      // Bind edit/delete
+      // Bind actions
       list.querySelectorAll('[data-edit-env]').forEach(function (btn) {
         btn.addEventListener('click', function () { editEnvironment(this.dataset.editEnv); });
       });
       list.querySelectorAll('[data-del-env]').forEach(function (btn) {
         btn.addEventListener('click', function () { deleteEnvironment(this.dataset.delEnv); });
+      });
+      list.querySelectorAll('[data-photos-env]').forEach(function (btn) {
+        btn.addEventListener('click', function () { openPhotosModal(this.dataset.photosEnv); });
       });
     } catch (err) {
       console.error('Environments load error:', err);
@@ -331,8 +313,6 @@
     document.getElementById('envName').value = '';
     document.getElementById('envDescription').value = '';
     document.getElementById('envShowHome').checked = true;
-    document.getElementById('previewEnvCover').style.display = 'none';
-    document.querySelector('#uploadEnvCover input[type="file"]').value = '';
     document.getElementById('modalEnvTitle').textContent = 'Novo Ambiente';
     openModal('modalEnv');
   });
@@ -347,15 +327,6 @@
       document.getElementById('envName').value = data.name;
       document.getElementById('envDescription').value = data.description || '';
       document.getElementById('envShowHome').checked = data.show_on_home;
-      document.querySelector('#uploadEnvCover input[type="file"]').value = '';
-
-      var preview = document.getElementById('previewEnvCover');
-      if (data.cover_image_url) {
-        preview.src = data.cover_image_url;
-        preview.style.display = 'block';
-      } else {
-        preview.style.display = 'none';
-      }
 
       document.getElementById('modalEnvTitle').textContent = 'Editar Ambiente';
       openModal('modalEnv');
@@ -384,20 +355,22 @@
           .replace(/^-|-$/g, '')
       };
 
-      var coverFile = document.querySelector('#uploadEnvCover input[type="file"]').files[0];
-      if (coverFile) {
-        envData.cover_image_url = await uploadFile(coverFile, 'site-assets', 'environments');
-      }
-
       if (id) {
         await supabase.from('environments').update(envData).eq('id', id);
       } else {
-        await supabase.from('environments').insert(envData);
+        var { data: newEnv } = await supabase.from('environments').insert(envData).select().single();
+        id = newEnv.id;
       }
 
       closeModal('modalEnv');
       toast('Ambiente salvo com sucesso!');
       loadEnvironments();
+
+      // If new, open photos modal right away
+      if (!document.getElementById('envId').value) {
+        // Small delay so the list reloads first
+        setTimeout(function () { openPhotosModal(id); }, 500);
+      }
     } catch (err) {
       console.error('Environment save error:', err);
       toast('Erro ao salvar ambiente', 'error');
@@ -409,16 +382,10 @@
 
   // Delete environment
   async function deleteEnvironment(id) {
-    if (!confirm('Tem certeza que deseja excluir este ambiente? Todos os projetos vinculados também serão excluídos.')) return;
+    if (!confirm('Tem certeza que deseja excluir este ambiente e todas as suas fotos?')) return;
 
     try {
-      // Delete project images first
-      var { data: projects } = await supabase.from('projects').select('id').eq('environment_id', id);
-      if (projects && projects.length > 0) {
-        var projIds = projects.map(function (p) { return p.id; });
-        await supabase.from('project_images').delete().in('project_id', projIds);
-        await supabase.from('projects').delete().eq('environment_id', id);
-      }
+      // environment_images will be deleted by CASCADE
       await supabase.from('environments').delete().eq('id', id);
 
       toast('Ambiente excluído com sucesso!');
@@ -429,191 +396,200 @@
   }
 
   // ========================================
-  // PROJECTS
+  // ENVIRONMENT PHOTOS MODAL
   // ========================================
-  async function loadProjects() {
-    var list = document.getElementById('projList');
-    list.innerHTML = '<div class="loading"><div class="spinner"></div><p>Carregando...</p></div>';
+  async function openPhotosModal(envId) {
+    document.getElementById('envPhotosId').value = envId;
+
+    // Get environment name for title
+    var { data: env } = await supabase.from('environments').select('name').eq('id', envId).single();
+    document.getElementById('modalEnvPhotosTitle').textContent = 'Fotos - ' + (env ? env.name : 'Ambiente');
+
+    // Reset upload input
+    document.querySelector('#uploadEnvImages input[type="file"]').value = '';
+    document.getElementById('uploadProgress').style.display = 'none';
+
+    await loadEnvPhotos(envId);
+    openModal('modalEnvPhotos');
+  }
+
+  // Load photos into gallery
+  async function loadEnvPhotos(envId) {
+    var gallery = document.getElementById('envPhotoGallery');
+    gallery.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
     try {
-      var { data, error } = await supabase
-        .from('projects')
-        .select('*, environments(name), project_images(id, image_url)')
-        .order('created_at', { ascending: false });
+      var { data: images, error } = await supabase
+        .from('environment_images')
+        .select('*')
+        .eq('environment_id', envId)
+        .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      if (!data || data.length === 0) {
-        list.innerHTML = '<p style="color:#555;text-align:center;padding:2rem">Nenhum projeto cadastrado.</p>';
+      if (!images || images.length === 0) {
+        gallery.innerHTML = '<p class="no-photos">Nenhuma foto ainda. Use o botão acima para enviar fotos.</p>';
         return;
       }
 
-      list.innerHTML = '';
-      data.forEach(function (proj) {
-        var firstImg = proj.project_images && proj.project_images.length > 0 ? proj.project_images[0].image_url : '';
-        var card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML =
-          (firstImg ? '<img class="item-card-img" src="' + firstImg + '" alt="' + proj.title + '">' : '') +
-          '<div class="item-card-info">' +
-            '<h4>' + proj.title + '</h4>' +
-            '<p>' + (proj.environments ? proj.environments.name : 'Sem ambiente') +
-            ' &bull; ' + (proj.project_images ? proj.project_images.length : 0) + ' imagens</p>' +
-          '</div>' +
-          '<div class="item-card-actions">' +
-            '<button class="btn btn-secondary btn-sm" data-edit-proj="' + proj.id + '">Editar</button>' +
-            '<button class="btn btn-danger btn-sm" data-del-proj="' + proj.id + '">Excluir</button>' +
-          '</div>';
-        list.appendChild(card);
-      });
-
-      list.querySelectorAll('[data-edit-proj]').forEach(function (btn) {
-        btn.addEventListener('click', function () { editProject(this.dataset.editProj); });
-      });
-      list.querySelectorAll('[data-del-proj]').forEach(function (btn) {
-        btn.addEventListener('click', function () { deleteProject(this.dataset.delProj); });
-      });
-    } catch (err) {
-      console.error('Projects load error:', err);
-      list.innerHTML = '<p style="color:#e74c3c;text-align:center;padding:2rem">Erro ao carregar projetos.</p>';
-    }
-  }
-
-  // Load environments for project select
-  async function loadEnvSelect() {
-    var select = document.getElementById('projEnvId');
-    select.innerHTML = '<option value="">Selecione um ambiente</option>';
-
-    var { data } = await supabase.from('environments').select('id, name').order('name');
-    if (data) {
-      data.forEach(function (env) {
-        var opt = document.createElement('option');
-        opt.value = env.id;
-        opt.textContent = env.name;
-        select.appendChild(opt);
-      });
-    }
-  }
-
-  // New project
-  document.getElementById('btnNewProj').addEventListener('click', async function () {
-    document.getElementById('projId').value = '';
-    document.getElementById('projTitle').value = '';
-    document.getElementById('projDesc').value = '';
-    document.getElementById('projImageGallery').innerHTML = '';
-    document.querySelector('#uploadProjImages input[type="file"]').value = '';
-    document.getElementById('modalProjTitle').textContent = 'Novo Projeto';
-    await loadEnvSelect();
-    document.getElementById('projEnvId').value = '';
-    openModal('modalProj');
-  });
-
-  // Edit project
-  async function editProject(id) {
-    try {
-      var { data } = await supabase.from('projects').select('*, project_images(id, image_url)').eq('id', id).single();
-      if (!data) return;
-
-      document.getElementById('projId').value = data.id;
-      document.getElementById('projTitle').value = data.title;
-      document.getElementById('projDesc').value = data.description || '';
-      document.querySelector('#uploadProjImages input[type="file"]').value = '';
-
-      await loadEnvSelect();
-      document.getElementById('projEnvId').value = data.environment_id;
-
-      // Show existing images
-      var gallery = document.getElementById('projImageGallery');
       gallery.innerHTML = '';
-      if (data.project_images) {
-        data.project_images.forEach(function (img) {
-          var item = document.createElement('div');
-          item.className = 'image-gallery-item';
-          item.innerHTML =
-            '<img src="' + img.image_url + '" alt="">' +
-            '<button type="button" class="remove-img" data-img-id="' + img.id + '">X</button>';
-          gallery.appendChild(item);
-        });
+      images.forEach(function (img) {
+        var item = document.createElement('div');
+        item.className = 'photo-card' + (img.is_cover ? ' is-cover' : '');
+        item.innerHTML =
+          '<img src="' + img.image_url + '" alt="Foto">' +
+          '<div class="photo-actions">' +
+            '<button type="button" class="photo-btn photo-btn-cover' + (img.is_cover ? ' active' : '') + '" data-cover-id="' + img.id + '" title="Definir como capa">' +
+              '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' +
+            '</button>' +
+            '<button type="button" class="photo-btn photo-btn-delete" data-del-id="' + img.id + '" title="Remover foto">' +
+              '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>' +
+            '</button>' +
+          '</div>' +
+          (img.is_cover ? '<span class="cover-badge">CAPA</span>' : '');
+        gallery.appendChild(item);
+      });
 
-        gallery.querySelectorAll('.remove-img').forEach(function (btn) {
-          btn.addEventListener('click', function () { removeProjectImage(this.dataset.imgId, this.parentElement); });
+      // Bind cover buttons
+      gallery.querySelectorAll('[data-cover-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          setCoverPhoto(envId, this.dataset.coverId);
         });
-      }
+      });
 
-      document.getElementById('modalProjTitle').textContent = 'Editar Projeto';
-      openModal('modalProj');
+      // Bind delete buttons
+      gallery.querySelectorAll('[data-del-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          deleteEnvPhoto(envId, this.dataset.delId);
+        });
+      });
     } catch (err) {
-      toast('Erro ao carregar projeto', 'error');
+      console.error('Photos load error:', err);
+      gallery.innerHTML = '<p style="color:#e74c3c">Erro ao carregar fotos.</p>';
     }
   }
 
-  // Save project
-  document.getElementById('projForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    var btn = this.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = 'Salvando...';
+  // Upload photos
+  var uploadInput = document.querySelector('#uploadEnvImages input[type="file"]');
+  uploadInput.addEventListener('change', async function () {
+    var files = this.files;
+    if (!files || files.length === 0) return;
 
-    try {
-      var id = document.getElementById('projId').value;
-      var projData = {
-        environment_id: document.getElementById('projEnvId').value,
-        title: document.getElementById('projTitle').value,
-        description: document.getElementById('projDesc').value
-      };
+    var envId = document.getElementById('envPhotosId').value;
+    if (!envId) return;
 
-      var projectId = id;
+    var progress = document.getElementById('uploadProgress');
+    var progressFill = document.getElementById('progressFill');
+    var progressText = document.getElementById('progressText');
 
-      if (id) {
-        await supabase.from('projects').update(projData).eq('id', id);
-      } else {
-        var { data: newProj } = await supabase.from('projects').insert(projData).select().single();
-        projectId = newProj.id;
+    progress.style.display = 'block';
+    var total = files.length;
+
+    for (var i = 0; i < total; i++) {
+      progressText.textContent = 'Enviando foto ' + (i + 1) + ' de ' + total + '...';
+      progressFill.style.width = Math.round(((i) / total) * 100) + '%';
+
+      try {
+        var url = await uploadFile(files[i], 'site-assets', 'environments');
+
+        // Check if this is the first image - make it cover automatically
+        var { count } = await supabase
+          .from('environment_images')
+          .select('*', { count: 'exact', head: true })
+          .eq('environment_id', envId);
+
+        var isCover = (count === 0);
+
+        await supabase.from('environment_images').insert({
+          environment_id: envId,
+          image_url: url,
+          is_cover: isCover
+        });
+
+        // Update cover_image_url on environments table if this is cover
+        if (isCover) {
+          await supabase.from('environments').update({ cover_image_url: url }).eq('id', envId);
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        toast('Erro ao enviar foto ' + (i + 1), 'error');
       }
-
-      // Upload new images
-      var files = document.querySelector('#uploadProjImages input[type="file"]').files;
-      for (var i = 0; i < files.length; i++) {
-        var url = await uploadFile(files[i], 'site-assets', 'projects');
-        await supabase.from('project_images').insert({ project_id: projectId, image_url: url });
-      }
-
-      closeModal('modalProj');
-      toast('Projeto salvo com sucesso!');
-      loadProjects();
-    } catch (err) {
-      console.error('Project save error:', err);
-      toast('Erro ao salvar projeto', 'error');
     }
 
-    btn.disabled = false;
-    btn.textContent = 'Salvar';
+    progressFill.style.width = '100%';
+    progressText.textContent = 'Concluído!';
+
+    setTimeout(function () {
+      progress.style.display = 'none';
+      progressFill.style.width = '0%';
+    }, 1000);
+
+    this.value = '';
+    toast(total + ' foto' + (total > 1 ? 's enviada' + 's' : ' enviada') + ' com sucesso!');
+    await loadEnvPhotos(envId);
   });
 
-  // Delete project
-  async function deleteProject(id) {
-    if (!confirm('Tem certeza que deseja excluir este projeto?')) return;
-
+  // Set cover photo
+  async function setCoverPhoto(envId, imageId) {
     try {
-      await supabase.from('project_images').delete().eq('project_id', id);
-      await supabase.from('projects').delete().eq('id', id);
-      toast('Projeto excluído com sucesso!');
-      loadProjects();
+      // Remove cover from all images of this environment
+      await supabase
+        .from('environment_images')
+        .update({ is_cover: false })
+        .eq('environment_id', envId);
+
+      // Set new cover
+      await supabase
+        .from('environment_images')
+        .update({ is_cover: true })
+        .eq('id', imageId);
+
+      // Get the image URL to update environments table
+      var { data: img } = await supabase.from('environment_images').select('image_url').eq('id', imageId).single();
+      if (img) {
+        await supabase.from('environments').update({ cover_image_url: img.image_url }).eq('id', envId);
+      }
+
+      toast('Foto de capa atualizada!');
+      await loadEnvPhotos(envId);
     } catch (err) {
-      toast('Erro ao excluir projeto', 'error');
+      console.error('Set cover error:', err);
+      toast('Erro ao definir capa', 'error');
     }
   }
 
-  // Remove single image
-  async function removeProjectImage(imgId, element) {
-    if (!confirm('Remover esta imagem?')) return;
+  // Delete photo
+  async function deleteEnvPhoto(envId, imageId) {
+    if (!confirm('Remover esta foto?')) return;
 
     try {
-      await supabase.from('project_images').delete().eq('id', imgId);
-      element.remove();
-      toast('Imagem removida!');
+      // Check if it was the cover
+      var { data: img } = await supabase.from('environment_images').select('is_cover').eq('id', imageId).single();
+      var wasCover = img && img.is_cover;
+
+      await supabase.from('environment_images').delete().eq('id', imageId);
+
+      // If we deleted the cover, promote the first remaining image
+      if (wasCover) {
+        var { data: remaining } = await supabase
+          .from('environment_images')
+          .select('id, image_url')
+          .eq('environment_id', envId)
+          .order('created_at', { ascending: true })
+          .limit(1);
+
+        if (remaining && remaining.length > 0) {
+          await supabase.from('environment_images').update({ is_cover: true }).eq('id', remaining[0].id);
+          await supabase.from('environments').update({ cover_image_url: remaining[0].image_url }).eq('id', envId);
+        } else {
+          await supabase.from('environments').update({ cover_image_url: null }).eq('id', envId);
+        }
+      }
+
+      toast('Foto removida!');
+      await loadEnvPhotos(envId);
     } catch (err) {
-      toast('Erro ao remover imagem', 'error');
+      toast('Erro ao remover foto', 'error');
     }
   }
 
