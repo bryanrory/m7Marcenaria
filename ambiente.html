@@ -121,7 +121,9 @@
     .lightbox {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.95);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 2000;
       display: none;
       align-items: center;
@@ -134,27 +136,75 @@
     }
 
     .lightbox img {
-      max-width: 90vw;
-      max-height: 90vh;
+      max-width: 85vw;
+      max-height: 85vh;
       object-fit: contain;
-      border-radius: 4px;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
 
     .lightbox-close {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 16px;
+      right: 16px;
       color: #fff;
-      background: none;
+      background: rgba(0,0,0,0.5);
       border: none;
-      font-size: 2rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.5rem;
       cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.2s;
+      opacity: 0.8;
+      transition: opacity 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .lightbox-close:hover {
       opacity: 1;
+      background: rgba(0,0,0,0.7);
+    }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+      transition: opacity 0.2s, background 0.2s;
+    }
+
+    .lightbox-nav:hover {
+      opacity: 1;
+      background: rgba(0,0,0,0.7);
+    }
+
+    .lightbox-prev { left: 16px; }
+    .lightbox-next { right: 16px; }
+
+    .lightbox-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
     }
 
     @media (max-width: 768px) {
@@ -220,7 +270,14 @@
   <!-- Lightbox -->
   <div class="lightbox" id="lightbox">
     <button class="lightbox-close">&times;</button>
+    <button class="lightbox-nav lightbox-prev">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
     <img src="" alt="" id="lightboxImg">
+    <button class="lightbox-nav lightbox-next">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
   </div>
 
   <!-- Footer (simplified) -->
@@ -335,19 +392,55 @@
       loadSiteSettings();
       loadAmbiente();
 
-      // Lightbox
+      // Lightbox with navigation
       var lightbox = document.getElementById('lightbox');
       var lightboxImg = document.getElementById('lightboxImg');
+      var lightboxCounter = document.getElementById('lightboxCounter');
+      var lightboxImages = [];
+      var lightboxIndex = 0;
+
+      function showLightboxImage(index) {
+        if (index < 0) index = lightboxImages.length - 1;
+        if (index >= lightboxImages.length) index = 0;
+        lightboxIndex = index;
+        lightboxImg.src = lightboxImages[index];
+        lightboxCounter.textContent = (index + 1) + ' / ' + lightboxImages.length;
+      }
 
       window.openLightbox = function (src) {
-        lightboxImg.src = src;
+        // Build image list from grid
+        lightboxImages = [];
+        document.querySelectorAll('#fotosGrid img').forEach(function (img) {
+          lightboxImages.push(img.src);
+        });
+        lightboxIndex = lightboxImages.indexOf(src);
+        if (lightboxIndex === -1) lightboxIndex = 0;
+        showLightboxImage(lightboxIndex);
         lightbox.classList.add('active');
       };
 
+      document.querySelector('.lightbox-prev').addEventListener('click', function (e) {
+        e.stopPropagation();
+        showLightboxImage(lightboxIndex - 1);
+      });
+
+      document.querySelector('.lightbox-next').addEventListener('click', function (e) {
+        e.stopPropagation();
+        showLightboxImage(lightboxIndex + 1);
+      });
+
       lightbox.addEventListener('click', function (e) {
-        if (e.target !== lightboxImg) {
+        if (e.target !== lightboxImg && !e.target.closest('.lightbox-nav')) {
           lightbox.classList.remove('active');
         }
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', function (e) {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'ArrowLeft') showLightboxImage(lightboxIndex - 1);
+        if (e.key === 'ArrowRight') showLightboxImage(lightboxIndex + 1);
+        if (e.key === 'Escape') lightbox.classList.remove('active');
       });
     })();
   </script>
