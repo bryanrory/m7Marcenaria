@@ -27,7 +27,7 @@
   --font-body: 'DM Sans', system-ui, sans-serif;
 
   /* Spacing */
-  --section-py: clamp(80px, 10vw, 130px);
+  --section-py: clamp(48px, 6vw, 72px);
   --container-px: clamp(20px, 4vw, 40px);
 
   /* Effects */
@@ -358,7 +358,7 @@ nav {
 .hero {
   position: relative;
   height: 100vh;
-  min-height: 700px;
+  min-height: 500px;
   overflow: hidden;
   background: var(--black);
 }
@@ -442,7 +442,7 @@ nav {
   font-weight: 300;
   color: rgba(255, 255, 255, 0.6);
   line-height: 1.9;
-  margin-bottom: 44px;
+  margin-bottom: 28px;
   letter-spacing: 0.3px;
 }
 
@@ -515,7 +515,7 @@ nav {
 
 .section-header {
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 32px;
 }
 
 .section-desc {
@@ -611,7 +611,7 @@ section h2 {
 .sobre-grid {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  gap: 80px;
+  gap: 48px;
   align-items: center;
 }
 
@@ -627,7 +627,7 @@ section h2 {
 
 .sobre-img-wrapper img {
   width: 100%;
-  height: 520px;
+  height: 400px;
   object-fit: cover;
   transition: transform 0.7s var(--ease);
 }
@@ -707,8 +707,8 @@ section h2 {
 .sobre-stats {
   display: flex;
   gap: 0;
-  margin-top: 36px;
-  padding-top: 36px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid var(--gray-200);
   align-items: center;
 }
@@ -863,7 +863,7 @@ a.card {
 }
 
 .card-info {
-  padding: 24px 28px 28px;
+  padding: 16px 24px 20px;
 }
 
 .card-info h3 {
@@ -927,7 +927,7 @@ a.card {
   color: rgba(255, 255, 255, 0.5);
   font-size: 15px;
   font-weight: 300;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
   line-height: 1.8;
 }
 
@@ -963,7 +963,7 @@ a.contato-item {
 .contato-item {
   display: block;
   background: var(--white);
-  padding: 40px 28px;
+  padding: 28px 24px;
   border-radius: 10px;
   text-align: center;
   border: 1px solid var(--gray-200);
@@ -1028,7 +1028,7 @@ footer {
 }
 
 .footer-top {
-  padding: 70px 0 50px;
+  padding: 40px 0 30px;
 }
 
 .footer-grid {
@@ -1306,11 +1306,11 @@ footer {
 @media (max-width: 1024px) {
   .sobre-grid {
     grid-template-columns: 1fr;
-    gap: 50px;
+    gap: 32px;
   }
 
   .sobre-img-wrapper img {
-    height: 400px;
+    height: 350px;
   }
 
   .sobre-img-frame {
@@ -1401,7 +1401,7 @@ footer {
 
   /* Hero */
   .hero {
-    min-height: 600px;
+    min-height: 450px;
   }
 
   .hero-texto h1 {
@@ -1490,7 +1490,7 @@ footer {
 
 @media (max-width: 480px) {
   .hero {
-    min-height: 550px;
+    min-height: 400px;
   }
 
   .hero-texto h1 {
@@ -1523,7 +1523,7 @@ footer {
   }
 
   .sobre-img-wrapper img {
-    height: 300px;
+    height: 260px;
   }
 
   .sobre-img-frame {
