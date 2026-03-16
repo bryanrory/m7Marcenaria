@@ -279,7 +279,8 @@ nav {
    BRAND FONTS
    ======================================== */
 
-.brand-m7 {
+.brand-m7,
+.brand-M7 {
   font-family: 'Magneto', cursive;
   font-weight: 400;
   font-style: normal;
