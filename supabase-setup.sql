@@ -10,6 +10,7 @@ CREATE TABLE site_settings (
   hero_image_url TEXT,
   about_image_url TEXT,
   whatsapp TEXT,
+  telefone_fixo TEXT,
   facebook TEXT,
   instagram TEXT,
   tiktok TEXT,
