@@ -211,7 +211,7 @@
       if (data.whatsapp) {
         waNumber = data.whatsapp.replace(/\D/g, '');
         if (waNumber.length <= 11) waNumber = '55' + waNumber;
-        var waUrl = 'https://wa.me/' + waNumber;
+        var waUrl = 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent('Olá! Vi o site da M7 Marcenaria e gostaria de solicitar um orçamento.');
         var navWa = document.getElementById('navWhatsapp');
         if (navWa) { navWa.href = waUrl; navWa.style.display = ''; }
         var floatWa = document.getElementById('whatsappFloat');
