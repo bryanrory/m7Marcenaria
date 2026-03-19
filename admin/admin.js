@@ -613,7 +613,8 @@
     try {
       var updates = {
         google_reviews_enabled: document.getElementById('reviewsEnabled').checked,
-        elfsight_code: document.getElementById('elfsightCode').value
+        elfsight_code: document.getElementById('elfsightCode').value,
+        nota_google: document.getElementById('notaGoogle').value
       };
 
       var { data: existing } = await supabase.from('site_settings').select('id').limit(1).single();
@@ -635,10 +636,11 @@
 
   async function loadReviews() {
     try {
-      var { data: settings } = await supabase.from('site_settings').select('google_reviews_enabled, elfsight_code').limit(1).single();
+      var { data: settings } = await supabase.from('site_settings').select('google_reviews_enabled, elfsight_code, nota_google').limit(1).single();
       if (settings) {
         document.getElementById('reviewsEnabled').checked = settings.google_reviews_enabled || false;
         document.getElementById('elfsightCode').value = settings.elfsight_code || '';
+        document.getElementById('notaGoogle').value = settings.nota_google || '';
       }
     } catch (err) {
       console.error('Review settings load error:', err);
