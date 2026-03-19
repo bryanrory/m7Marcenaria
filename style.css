@@ -1531,3 +1531,21 @@ footer {
     display: none;
   }
 }
+
+/* ========================================
+   AVALIAÇÕES
+   ======================================== */
+
+.avaliacoes {
+  padding: var(--section-py) 0;
+  background: var(--white);
+  overflow: hidden;
+}
+
+.avaliacoes h2 {
+  color: var(--dark);
+}
+
+#avaliacoesWidget {
+  min-height: 100px;
+}

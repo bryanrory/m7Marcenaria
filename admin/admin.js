@@ -23,7 +23,8 @@
   var sectionTitles = {
     dashboard: 'Dashboard',
     settings: 'Configurações do Site',
-    environments: 'Ambientes'
+    environments: 'Ambientes',
+    reviews: 'Avaliações Google'
   };
 
   function switchSection(name) {
@@ -39,6 +40,7 @@
     if (name === 'dashboard') loadDashboard();
     if (name === 'settings') loadSettings();
     if (name === 'environments') loadEnvironments();
+    if (name === 'reviews') loadReviews();
   }
 
   sidebarLinks.forEach(function (link) {
@@ -152,6 +154,7 @@
       document.getElementById('statEnv').textContent = envCount || 0;
       document.getElementById('statHome').textContent = homeCount || 0;
       document.getElementById('statImg').textContent = imgCount || 0;
+
     } catch (err) {
       console.error('Dashboard error:', err);
     }
@@ -594,6 +597,51 @@
       await loadEnvPhotos(envId);
     } catch (err) {
       toast('Erro ao remover foto', 'error');
+    }
+  }
+
+
+  // ========================================
+  // GOOGLE REVIEWS (ELFSIGHT)
+  // ========================================
+
+  document.getElementById('btnSaveReviewSettings').addEventListener('click', async function () {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    try {
+      var updates = {
+        google_reviews_enabled: document.getElementById('reviewsEnabled').checked,
+        elfsight_code: document.getElementById('elfsightCode').value
+      };
+
+      var { data: existing } = await supabase.from('site_settings').select('id').limit(1).single();
+      if (existing) {
+        await supabase.from('site_settings').update(updates).eq('id', existing.id);
+      } else {
+        await supabase.from('site_settings').insert(updates);
+      }
+
+      toast('Configurações de avaliações salvas!');
+    } catch (err) {
+      console.error('Review settings save error:', err);
+      toast('Erro ao salvar configurações', 'error');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Salvar Configurações';
+  });
+
+  async function loadReviews() {
+    try {
+      var { data: settings } = await supabase.from('site_settings').select('google_reviews_enabled, elfsight_code').limit(1).single();
+      if (settings) {
+        document.getElementById('reviewsEnabled').checked = settings.google_reviews_enabled || false;
+        document.getElementById('elfsightCode').value = settings.elfsight_code || '';
+      }
+    } catch (err) {
+      console.error('Review settings load error:', err);
     }
   }
 
