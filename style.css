@@ -2,6 +2,14 @@
    M7 Marcenaria - Premium Design System
    ======================================== */
 
+@font-face {
+  font-family: 'Magneto';
+  src: url('fonts/Magneto-Bold.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Palette */
   --black: #111110;
